@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/architectures_db}
+      DB_NAME: ${DB_NAME:-architectures_db}
+      COLLECTION_NAME: ${COLLECTION_NAME:-architectures_collection}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_PER_PAGE: ${GITHUB_PER_PAGE:-8}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:6.0
+    container_name: archcloud-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
